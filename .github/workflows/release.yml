@@ -11,11 +11,20 @@ permissions:
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    # 强制整个任务在 src 目录下执行
+    defaults:
+      run:
+        working-directory: ./src
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          path: '.'
+
+      - name: Set Node Version Env
+        run: echo "FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true" >> $GITHUB_ENV
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -28,8 +37,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v5
         with:
           distribution: goreleaser
-          version: latest
-          # 指定在 src 目录下执行命令
-          args: release --clean -f src/.goreleaser.yaml
+          version: v1
+          args: release --clean -f .goreleaser.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
