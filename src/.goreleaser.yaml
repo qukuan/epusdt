@@ -1,4 +1,5 @@
 project_name: epusdt
+
 before:
   hooks:
     - go mod tidy
@@ -13,24 +14,21 @@ builds:
     goarch:
       - amd64
       - arm
-      - 386
-    # 显式指定 main.go 路径，确保在 src 目录下能找到
+      - "386"
     main: ./main.go
 
 archives:
   - id: epusdt
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    # 移除了 replacements，直接在 name_template 里控制命名
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format: tar.gz
-    # 修正后的 replacements 语法
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
     files:
       - .env.example
-      - static/*
+      - static/**/*
+
+    format_overrides:
+      - goos: windows
+        format: zip
 
 checksum:
   name_template: 'checksums.txt'
@@ -39,8 +37,4 @@ snapshot:
   name_template: "{{ incpatch .Version }}-next"
 
 changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
+  disable: false
